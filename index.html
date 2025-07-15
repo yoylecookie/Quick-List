@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+    <head>
+        <title>MyNotes</title>
+        
+        <style>
+@import url('https://fonts.googleapis.com/css2?family=Kirang+Haerang&display=swap');
+</style>
+
+        <style>
+            body {
+                text-align:center;
+                font-family:"Kirang Haerang", sans-serif;
+                background-color:#fff7d8;
+            }
+            
+            button {
+                padding:10px;
+                margin-top:15px;
+                margin-bottom:5px;
+                border-radius:10px;
+                box-shadow:0px 10px #572800;
+                font-family:"Kirang Haerang", sans-serif;
+                border:#572800 solid 2px;
+                color:#572800;
+                background-color:#ffddb3;
+                
+            }
+            
+            button:hover {
+               box-shadow:0px 5px #572800;
+               position:relative;
+               top:5px;
+            }
+            
+            header {
+                background-color:#ffcc00;
+                padding:40px;
+                color:#572800;
+            }
+            
+            #hr {
+                margin-top:15px;
+                background-color:#572800;
+                height:1px;
+            }
+        </style>
+        
+        </head>
+        <body>
+            <header>
+            <h1>Quick-List</h1>
+            <p>v1.0.0</p></header>
+            <button onclick="restore()">Restore item</button>
+            <br />
+            <button onclick="deletenotes()" style="color:white; background-color:red; border:#9e0000 solid 3px;">Delete all Items</button>
+            
+            
+            <div id = "hr"></div>
+            
+           <div class="newnote"> 
+                <p>Name</p>
+                <input id="name" class="name">
+                <p>Note</p>
+                <textarea id="content" class="content"></textarea>
+                <p>Date (mm-dd-yyyy)</p>
+                <input id="date" class="date">
+                <p>Time (12 hour time)</p>
+                <input id="timey" class="timey">
+                <br>
+                <button onclick="addnote()">Add Item</button></div>
+                
+                <div id = "hr"></div>
+                
+                <div id="notes"></div>
+<script>
+    let notesArray = JSON.parse(localStorage.getItem("notesArray") || "[]");
+
+    function requestNotificationPermission() {
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    }
+
+    function sendNotification(title, body) {
+        if (Notification.permission === "granted") {
+            new Notification(title, { body });
+        }
+    }
+
+    function displayNotes() {
+        document.getElementById("notes").innerHTML = "";
+        notesArray.forEach(note => {
+            let noteHTML = `<h1>${note.name}</h1><p>${note.content}<br><br>Date: ${note.date}<br>Time: ${note.time}</p><hr />`;
+            document.getElementById("notes").innerHTML += noteHTML;
+        });
+    }
+
+    function addnote() {
+        let name = document.getElementById('name').value.trim();
+        let content = document.getElementById('content').value.trim();
+        let date = document.getElementById('date').value.trim();
+        let timey = document.getElementById('timey').value.trim();
+
+        if (!name || !content || !date || !timey) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        const note = { name, content, date, time: timey, notified: false };
+        notesArray.push(note);
+        localStorage.setItem("notesArray", JSON.stringify(notesArray));
+        displayNotes();
+        requestNotificationPermission();
+
+        // Clear inputs
+        document.getElementById('name').value = "";
+        document.getElementById('content').value = "";
+        document.getElementById('date').value = "";
+        document.getElementById('timey').value = "";
+    }
+
+    function restore() {
+        notesArray = JSON.parse(localStorage.getItem("notesArray") || "[]");
+        displayNotes();
+    }
+
+    function deletenotes() {
+        let sure = window.prompt("Are you sure? This will delete all of your notes, and you will not be able to restore them", "Type 'y' to confirm this action");
+        if (sure === "y") {
+            document.getElementById("notes").innerHTML = "";
+            localStorage.removeItem("notesArray");
+            notesArray = [];
+            alert("All notes have been deleted.");
+        } else {
+            alert("Deletion cancelled.");
+        }
+    }
+
+    function checkTimeMatch() {
+        const now = new Date();
+        const currentDate = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${now.getFullYear()}`;
+
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        const period = hours >= 12 ? "PM" : "AM";
+        const hour12 = hours % 12 || 12;
+        const minuteStr = minutes.toString().padStart(2, '0');
+        const currentTime = `${hour12}:${minuteStr} ${period}`;
+
+        let updated = false;
+
+        notesArray.forEach(note => {
+            if (note.date === currentDate && note.time === currentTime && !note.notified) {
+                sendNotification("Reminder: " + note.name, note.content);
+                note.notified = true;
+                updated = true;
+            }
+        });
+
+        if (updated) {
+            localStorage.setItem("notesArray", JSON.stringify(notesArray));
+        }
+    }
+
+    // Run check every minute
+    setInterval(checkTimeMatch, 60 * 1000);
+
+    // Auto-load saved notes on page load
+    window.onload = restore;
+</script>
+
+
+            </body>
+    </html>
