@@ -61,13 +61,41 @@
                 background-color:#572800;
                 height:1px;
             }
+
+            #toast {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #572800;
+  color: #fff7d8;
+  text-align: center;
+  border-radius: 10px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 30px;
+  font-family: "Kirang Haerang", sans-serif;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+  transition: visibility 0s, opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+#toast.show {
+  visibility: visible;
+  opacity: 1;
+}
+
         </style>
         
         </head>
         <body>
             <header>
             <h1>Quick-List</h1>
-            <p>v1.0.0</p></header>
+            <p>v1.0.1</p></header>
+
+            <div id="toast"></div>
+
             <button onclick="restore()">Restore item</button>
             <br />
             <button onclick="deletenotes()" style="color:white; background-color:red; border:#9e0000 solid 3px;">Delete all Items</button>
@@ -93,6 +121,18 @@
 <script>
     let notesArray = JSON.parse(localStorage.getItem("notesArray") || "[]");
 
+    function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.className = "show";
+  
+  // Auto-hide after 3 seconds
+  setTimeout(() => {
+    toast.className = toast.className.replace("show", "");
+  }, 3000);
+}
+
+    
     function requestNotificationPermission() {
         if (Notification.permission !== "granted") {
             Notification.requestPermission();
@@ -120,7 +160,7 @@
         let timey = document.getElementById('timey').value.trim();
 
         if (!name || !content || !date || !timey) {
-            alert("Please fill in all fields.");
+            showToast("Please fill in all fields.");
             return;
         }
 
@@ -148,9 +188,9 @@
             document.getElementById("notes").innerHTML = "";
             localStorage.removeItem("notesArray");
             notesArray = [];
-            alert("All notes have been deleted.");
+            showToast("All notes have been deleted.");
         } else {
-            alert("Deletion cancelled.");
+            showToast("Deletion cancelled.");
         }
     }
 
@@ -170,6 +210,7 @@
         notesArray.forEach(note => {
             if (note.date === currentDate && note.time === currentTime && !note.notified) {
                 sendNotification("Reminder: " + note.name, note.content);
+                showToast("Reminder: " + note.name, note.content);
                 note.notified = true;
                 updated = true;
             }
