@@ -66,7 +66,9 @@
         <body>
             <header>
             <h1>Quick-List</h1>
-            <p>v1.0.0</p></header>
+            <p>v1.0.0</p>
+            <button onclick="subscribeUser()">Enable Push Notifications</button>
+</header>
             <button onclick="restore()">Restore item</button>
             <br />
             <button onclick="deletenotes()" style="color:white; background-color:red; border:#9e0000 solid 3px;">Delete all Items</button>
@@ -188,6 +190,40 @@
     if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
+
+    const VAPID_PUBLIC_KEY = 'BCmvAGnud6SXMZnpc3Glw52NLIasd95cPW5-vpr_47LMYMtcKiPAfgF3jrTFU8jKd8I6tC-ijfNwTEblIrEhSC8'; // 🔑 your real public key here
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+}
+
+async function subscribeUser() {
+  const permission = await Notification.requestPermission();
+  if (permission !== 'granted') {
+    alert('You must enable notifications to use this feature.');
+    return;
+  }
+
+  const registration = await navigator.serviceWorker.ready;
+
+  const subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+  });
+
+  // Send subscription to your server
+  await fetch('https://YOUR-RENDER-URL/save-subscription', {
+    method: 'POST',
+    body: JSON.stringify(subscription),
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  alert('Push notifications are enabled!');
+}
+
 </script>
 
 
