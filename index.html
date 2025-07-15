@@ -68,6 +68,7 @@
             <h1>Quick-List</h1>
             <p>v1.0.0</p>
             <button onclick="subscribeUser()">Enable Push Notifications</button>
+
 </header>
             <button onclick="restore()">Restore item</button>
             <br />
@@ -191,7 +192,7 @@
   navigator.serviceWorker.register('sw.js');
 }
 
-    const VAPID_PUBLIC_KEY = 'BCmvAGnud6SXMZnpc3Glw52NLIasd95cPW5-vpr_47LMYMtcKiPAfgF3jrTFU8jKd8I6tC-ijfNwTEblIrEhSC8'; // 🔑 your real public key here
+    const VAPID_PUBLIC_KEY = 'BCmvAGnud6SXMZnpc3Glw52NLIasd95cPW5-vpr_47LMYMtcKiPAfgF3jrTFU8jKd8I6tC-ijfNwTEblIrEhSC8'; // from same VAPID generator
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -203,7 +204,7 @@ function urlBase64ToUint8Array(base64String) {
 async function subscribeUser() {
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') {
-    alert('You must enable notifications to use this feature.');
+    alert('You must allow notifications.');
     return;
   }
 
@@ -214,15 +215,15 @@ async function subscribeUser() {
     applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
   });
 
-  // Send subscription to your server
-  await fetch('https://YOUR-RENDER-URL/save-subscription', {
+  await fetch('https://3214a52d-3a83-448a-ad90-e680c8bb1fbd-00-8kh3oq8hhpro.janeway.replit.dev/save-subscription', {
     method: 'POST',
     body: JSON.stringify(subscription),
     headers: { 'Content-Type': 'application/json' }
   });
 
-  alert('Push notifications are enabled!');
+  alert('Push notifications enabled!');
 }
+
 
 </script>
 
