@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <title>Quick-List</title>
+        <title>MyNotes</title>
 
           <!-- Icon for iOS Home Screen -->
   <link rel="apple-touch-icon" href="https://yoylecookie.github.io/Quick-List/logo.png">
@@ -66,12 +66,7 @@
         <body>
             <header>
             <h1>Quick-List</h1>
-            <p>v1.0.0</p>
-            <button onclick="subscribeUser()">Enable Push Notifications</button>
-                <button onclick="sendTestPush()">dev.test.SendTestPush</button>
-
-
-</header>
+            <p>v1.0.0</p></header>
             <button onclick="restore()">Restore item</button>
             <br />
             <button onclick="deletenotes()" style="color:white; background-color:red; border:#9e0000 solid 3px;">Delete all Items</button>
@@ -112,7 +107,7 @@
     function displayNotes() {
         document.getElementById("notes").innerHTML = "";
         notesArray.forEach(note => {
-            let noteHTML = `<h1>${note.name}</h1><p>${note.content}<br><br>Date: ${note.date}<br>Time: ${note.time}</p><hr />`;
+            let noteHTML = <h1>${note.name}</h1><p>${note.content}<br><br>Date: ${note.date}<br>Time: ${note.time}</p><hr />;
             document.getElementById("notes").innerHTML += noteHTML;
         });
     }
@@ -160,14 +155,14 @@
 
     function checkTimeMatch() {
         const now = new Date();
-        const currentDate = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${now.getFullYear()}`;
+        const currentDate = ${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${now.getFullYear()};
 
         let hours = now.getHours();
         let minutes = now.getMinutes();
         const period = hours >= 12 ? "PM" : "AM";
         const hour12 = hours % 12 || 12;
         const minuteStr = minutes.toString().padStart(2, '0');
-        const currentTime = `${hour12}:${minuteStr} ${period}`;
+        const currentTime = ${hour12}:${minuteStr} ${period};
 
         let updated = false;
 
@@ -193,54 +188,6 @@
     if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
-
-    const VAPID_PUBLIC_KEY = 'BCmvAGnud6SXMZnpc3Glw52NLIasd95cPW5-vpr_47LMYMtcKiPAfgF3jrTFU8jKd8I6tC-ijfNwTEblIrEhSC8'; // from same VAPID generator
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = atob(base64);
-  return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
-}
-
-async function subscribeUser() {
-  const permission = await Notification.requestPermission();
-  if (permission !== 'granted') {
-    alert('You must allow notifications.');
-    return;
-  }
-
-  const registration = await navigator.serviceWorker.ready;
-
-  const subscription = await registration.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-  });
-
-  await fetch('https://3214a52d-3a83-448a-ad90-e680c8bb1fbd-00-8kh3oq8hhpro.janeway.replit.dev/save-subscription', {
-    method: 'POST',
-    body: JSON.stringify(subscription),
-    headers: { 'Content-Type': 'application/json' }
-  });
-
-  alert('Push notifications enabled!');
-}
-
-    async function sendTestPush() {
-  await fetch('https://3214a52d-3a83-448a-ad90-e680c8bb1fbd-00-8kh3oq8hhpro.janeway.replit.dev/send', {
-    method: 'POST',
-    body: JSON.stringify({
-      title: "Quick-List Reminder",
-      body: "Don't forget to check your notes!"
-    }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-}
-
-
-
 </script>
 
 
