@@ -170,6 +170,8 @@
         displayNotes();
         requestNotificationPermission();
 
+        showToast("Reminder Set for " + timey + " on " + date + " 📆");
+
         // Clear inputs
         document.getElementById('name').value = "";
         document.getElementById('content').value = "";
@@ -210,7 +212,7 @@
         notesArray.forEach(note => {
             if (note.date === currentDate && note.time === currentTime && !note.notified) {
                 sendNotification("Reminder: " + note.name, note.content);
-                showToast("Reminder: " + note.name, note.content);
+                showToast("You had a Reminder at" + date());
                 note.notified = true;
                 updated = true;
             }
